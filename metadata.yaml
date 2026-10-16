@@ -1,0 +1,14 @@
+name: astrbot_plugin_keenable
+display_name: Keenable 联网搜索
+short_desc: 无需 API Key 的联网搜索与网页读取，支持 LLM Tool 和指令。
+desc: 通过 Keenable 为 AstrBot 提供联网搜索（keenable_web_search）和网页正文读取（keenable_fetch_page）两个 LLM Tool，以及 /keenable 指令。开箱即用，无需注册或 API Key（按 IP 限流）；填写免费 API Key 可提高额度。由 Keenable 官方维护。
+version: 0.1.0
+author: keenableai
+repo: https://github.com/keenableai/astrbot_plugin_keenable
+astrbot_version: ">=4.9.2"
+support_platforms: []
+social_link: https://keenable.ai
+tags:
+  - search
+  - web-search
+  - 联网搜索

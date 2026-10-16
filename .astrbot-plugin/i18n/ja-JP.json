@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "display_name": "Keenable ウェブ検索",
+    "short_desc": "API キー不要のウェブ検索とページ読み取り。LLM ツールとコマンドに対応。",
+    "desc": "AstrBot にウェブ検索（keenable_web_search）とページ本文の読み取り（keenable_fetch_page）の 2 つの LLM ツール、および /keenable コマンドを追加します。登録も API キーも不要ですぐに使えます（IP ごとにレート制限あり）。無料の API キーを設定すると上限が上がります。Keenable が公式に保守しています。"
+  },
+  "config": {
+    "api_key": {
+      "description": "Keenable API キー（任意）",
+      "hint": "空欄のままなら無料のキーなし枠を使います（IP ごとに 1 時間 1000 回、毎秒 10 回まで）。https://keenable.ai/console で無料の API キーを取得すると上限が上がります。"
+    },
+    "max_results": {
+      "description": "既定の結果数",
+      "hint": "1-50。モデルは呼び出しごとに別の数を指定できます。"
+    },
+    "snippet_max_length": {
+      "description": "結果ごとのページ本文の抜粋（文字数）",
+      "hint": "100-4000。長いほど結果だけで答えやすくなりますが、コンテキストを多く使います。"
+    },
+    "enable_fetch": {
+      "description": "ページ読み取りツール keenable_fetch_page を有効にする",
+      "hint": "オフにするとモデルは検索のみ使えます。変更後はプラグインを再読み込みしてください。"
+    },
+    "fetch_max_chars": {
+      "description": "ページ読み取りの最大文字数",
+      "hint": "1000-200000。"
+    },
+    "timeout_seconds": {
+      "description": "リクエストのタイムアウト（秒）",
+      "hint": "5-120。"
+    }
+  }
+}

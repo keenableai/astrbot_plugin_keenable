@@ -1,0 +1,14 @@
+# Development settings only. AstrBot loads the plugin from metadata.yaml and
+# installs requirements.txt; this file is not used at runtime.
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

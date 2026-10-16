@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "display_name": "Keenable Web Search",
+    "short_desc": "Web search and page reading with no API key, as LLM tools and a command.",
+    "desc": "Adds two LLM tools to AstrBot, web search (keenable_web_search) and page reading (keenable_fetch_page), plus the /keenable command. Works out of the box with no signup or API key (rate-limited per IP); a free API key raises the limit. Maintained by Keenable."
+  },
+  "config": {
+    "api_key": {
+      "description": "Keenable API key (optional)",
+      "hint": "Leave empty to use the free keyless tier (rate-limited per IP: 1,000 requests per hour, 10 per second). A free key from https://keenable.ai/console raises the limit."
+    },
+    "max_results": {
+      "description": "Default number of results",
+      "hint": "1-50. The model can ask for a different number on each call."
+    },
+    "snippet_max_length": {
+      "description": "Page-text excerpt per result (characters)",
+      "hint": "100-4000. Longer excerpts answer more questions directly but use more context."
+    },
+    "enable_fetch": {
+      "description": "Enable the page-reading tool keenable_fetch_page",
+      "hint": "When off, the model can only search. Reload the plugin after changing it."
+    },
+    "fetch_max_chars": {
+      "description": "Maximum characters returned by page reading",
+      "hint": "1000-200000."
+    },
+    "timeout_seconds": {
+      "description": "Request timeout (seconds)",
+      "hint": "5-120."
+    }
+  }
+}

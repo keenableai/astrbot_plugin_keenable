@@ -1,0 +1,39 @@
+{
+  "api_key": {
+    "description": "Keenable API Key（可选）",
+    "type": "string",
+    "hint": "留空即使用免费的无 Key 通道（按 IP 限流：每小时 1000 次，每秒 10 次）。在 https://keenable.ai/console 免费获取 API Key 可提高额度。",
+    "secret": true,
+    "default": ""
+  },
+  "max_results": {
+    "description": "默认返回结果数",
+    "type": "int",
+    "hint": "1-50。模型可在每次调用时指定其他数量。",
+    "default": 8
+  },
+  "snippet_max_length": {
+    "description": "每条结果的正文摘录长度（字符）",
+    "type": "int",
+    "hint": "100-4000。越长越容易直接回答问题，但占用更多上下文。",
+    "default": 500
+  },
+  "enable_fetch": {
+    "description": "启用网页读取工具 keenable_fetch_page",
+    "type": "bool",
+    "hint": "关闭后模型只能使用搜索。修改后需重载插件。",
+    "default": true
+  },
+  "fetch_max_chars": {
+    "description": "网页读取的最大字符数",
+    "type": "int",
+    "hint": "1000-200000。",
+    "default": 20000
+  },
+  "timeout_seconds": {
+    "description": "请求超时（秒）",
+    "type": "int",
+    "hint": "5-120。",
+    "default": 30
+  }
+}
