@@ -59,6 +59,7 @@ def test_tools_are_registered_with_parameter_schemas(plugin_main):
         "max_results": "number",
         "site": "string",
         "published_after": "string",
+        "objective": "string",
     }
     assert {k: v["type"] for k, v in fetch.parameters["properties"].items()} == {
         "url": "string",
@@ -75,8 +76,24 @@ async def test_search_tool_formats_results_and_uses_config_defaults(make_plugin)
     out = await plugin.keenable_web_search(MagicMock(), query="  q  ", site="x.org", published_after="2026-10-01")
     assert out == "[1] A\nURL: https://a.example\nalpha"
     assert fake.calls == [
-        ("search", "q", {"max_results": 3, "site": "x.org", "published_after": "2026-10-01", "snippet_max_length": 200})
+        (
+            "search",
+            "q",
+            {
+                "max_results": 3,
+                "site": "x.org",
+                "published_after": "2026-10-01",
+                "objective": "",
+                "snippet_max_length": 200,
+            },
+        )
     ]
+
+
+async def test_search_tool_passes_objective(make_plugin):
+    plugin, fake = make_plugin({})
+    await plugin.keenable_web_search(MagicMock(), query="q", objective="Find the 2026 pricing.")
+    assert fake.calls[0][2]["objective"] == "Find the 2026 pricing."
 
 
 async def test_search_tool_honours_model_count_and_bad_config(make_plugin):

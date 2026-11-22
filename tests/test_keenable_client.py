@@ -57,6 +57,14 @@ async def test_keyless_search_uses_public_endpoint_and_title(server):
     assert req["json"] == {"query": "q", "max_results": 10, "snippet_max_length": 500}
 
 
+async def test_search_sends_trimmed_objective_only_when_set(server):
+    client = KeenableClient(base_url=server.base_url)
+    await client.search("q", objective="  Find the 2026 pricing.  ")
+    await client.search("q", objective="   ")
+    assert server.requests[0]["json"]["objective"] == "Find the 2026 pricing."
+    assert "objective" not in server.requests[1]["json"]
+
+
 async def test_keyed_search_uses_key_and_private_endpoint(server):
     await KeenableClient(" keen_test ", base_url=server.base_url).search("q")
     req = server.requests[0]

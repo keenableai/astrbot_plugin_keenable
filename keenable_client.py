@@ -93,6 +93,7 @@ class KeenableClient:
         max_results: int = 10,
         site: str = "",
         published_after: str = "",
+        objective: str = "",
         snippet_max_length: int = 500,
     ) -> list[dict]:
         """Search the web. Returns results as dicts with title, url and snippet."""
@@ -107,6 +108,8 @@ class KeenableClient:
             if not _DATE_RE.match(published_after.strip()):
                 raise KeenableError("published_after must be a date in YYYY-MM-DD format.")
             payload["published_after"] = published_after.strip()
+        if objective.strip():
+            payload["objective"] = objective.strip()
 
         data = await self._request("/v1/search", "web search", payload=payload)
         results = []
