@@ -91,6 +91,17 @@ async def test_search_rejects_malformed_date_without_calling_api(server):
     assert server.requests == []
 
 
+async def test_search_rejects_overlong_objective_without_calling_api(server):
+    with pytest.raises(KeenableError, match="1000"):
+        await KeenableClient(base_url=server.base_url).search("q", objective="x" * 1001)
+    assert server.requests == []
+
+
+async def test_search_objective_at_limit_is_sent(server):
+    await KeenableClient(base_url=server.base_url).search("q", objective=" " + "x" * 1000 + " ")
+    assert len(server.requests[0]["json"]["objective"]) == 1000
+
+
 async def test_search_maps_snippet_collapses_whitespace_and_slices(server):
     server.body = {
         "results": [
