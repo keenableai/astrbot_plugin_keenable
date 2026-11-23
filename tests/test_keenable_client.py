@@ -134,21 +134,35 @@ async def test_network_error_becomes_keenable_error():
         await KeenableClient(base_url="http://127.0.0.1:9", timeout_seconds=5).search("q")
 
 
-async def test_fetch_is_a_get_with_url_and_limit(server):
-    server.body = {"url": "https://a.example/", "title": "A", "content": "# A"}
+async def test_fetch_posts_urls_and_limit(server):
+    server.body = {"results": [{"url": "https://a.example/", "title": "A", "content": "# A"}]}
     page = await KeenableClient(base_url=server.base_url).fetch("https://a.example", max_chars=1000)
     req = server.requests[0]
-    assert req["method"] == "GET"
+    assert req["method"] == "POST"
     assert req["path"] == "/v1/fetch/public"
-    assert req["query"] == {"url": "https://a.example", "max_chars": "1000"}
+    assert req["json"] == {"urls": ["https://a.example"], "content": {"max_chars": 1000}}
     assert page["content"] == "# A"
 
 
-async def test_fetch_without_limit_sends_only_url(server):
+async def test_fetch_without_limit_sends_only_urls(server):
+    server.body = {"results": [{"url": "https://a.example/", "content": "x"}]}
     await KeenableClient("k", base_url=server.base_url).fetch("https://a.example")
     req = server.requests[0]
+    assert req["method"] == "POST"
     assert req["path"] == "/v1/fetch"
-    assert req["query"] == {"url": "https://a.example"}
+    assert req["json"] == {"urls": ["https://a.example"]}
+
+
+async def test_fetch_page_error_becomes_keenable_error(server):
+    server.body = {"results": [{"url": "https://a.example/", "error": {"status": 404, "message": "page not found"}}]}
+    with pytest.raises(KeenableError, match="HTTP 404.*page not found"):
+        await KeenableClient(base_url=server.base_url).fetch("https://a.example")
+
+
+async def test_fetch_without_results_is_an_error(server):
+    server.body = {"results": []}
+    with pytest.raises(KeenableError, match="no page"):
+        await KeenableClient(base_url=server.base_url).fetch("https://a.example")
 
 
 def test_format_results_numbers_blocks():

@@ -42,8 +42,7 @@ class KeenableClient:
         path: str,
         action: str,
         *,
-        payload: dict | None = None,
-        params: dict | None = None,
+        payload: dict,
     ) -> dict:
         headers = {"X-Keenable-Title": APP_TITLE}
         url = f"{self.base_url}{path}"
@@ -57,8 +56,7 @@ class KeenableClient:
         try:
             # trust_env picks up HTTP(S)_PROXY, which many AstrBot hosts rely on.
             async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
-                method = "POST" if payload is not None else "GET"
-                async with session.request(method, url, json=payload, params=params, headers=headers) as response:
+                async with session.post(url, json=payload, headers=headers) as response:
                     if response.status == 200:
                         return await response.json(content_type=None)
                     body = await response.text()
@@ -128,10 +126,21 @@ class KeenableClient:
 
     async def fetch(self, url: str, *, max_chars: int = 0) -> dict:
         """Read a page as Markdown. Returns a dict with url, title and content."""
-        params: dict = {"url": url}
+        payload: dict = {"urls": [url]}
         if max_chars > 0:
-            params["max_chars"] = max_chars
-        return await self._request("/v1/fetch", "page fetch", params=params)
+            payload["content"] = {"max_chars": max_chars}
+        data = await self._request("/v1/fetch", "page fetch", payload=payload)
+        results = data.get("results")
+        page = results[0] if isinstance(results, list) and results else None
+        if not isinstance(page, dict):
+            raise KeenableError("Keenable page fetch returned no page.")
+        error = page.get("error")
+        if isinstance(error, dict):
+            status = error.get("status")
+            raise KeenableError(
+                self._error_message("page fetch", status if isinstance(status, int) else 500, json.dumps(error))
+            )
+        return page
 
 
 def format_results(results: list[dict]) -> str:
