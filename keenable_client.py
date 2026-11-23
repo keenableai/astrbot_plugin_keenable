@@ -128,10 +128,26 @@ class KeenableClient:
 
     async def fetch(self, url: str, *, max_chars: int = 0) -> dict:
         """Read a page as Markdown. Returns a dict with url, title and content."""
-        params: dict = {"url": url}
+        if not self.api_key:
+            # Keyless fetch has no POST form; only GET /v1/fetch/public exists.
+            params: dict = {"url": url}
+            if max_chars > 0:
+                params["max_chars"] = max_chars
+            return await self._request("/v1/fetch", "page fetch", params=params)
+        payload: dict = {"urls": [url]}
         if max_chars > 0:
-            params["max_chars"] = max_chars
-        return await self._request("/v1/fetch", "page fetch", params=params)
+            payload["content"] = {"max_chars": max_chars}
+        data = await self._request("/v1/fetch", "page fetch", payload=payload)
+        results = data.get("results")
+        page = results[0] if isinstance(results, list) and results else None
+        if not isinstance(page, dict):
+            raise KeenableError("Keenable page fetch returned no page.")
+        error = page.get("error")
+        if isinstance(error, dict):
+            status = error.get("status")
+            detail = " ".join(str(error.get("message") or error).split())[:300]
+            raise KeenableError(f"Keenable page fetch failed for the page (status {status}): {detail}")
+        return page
 
 
 def format_results(results: list[dict]) -> str:
