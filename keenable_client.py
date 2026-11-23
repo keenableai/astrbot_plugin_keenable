@@ -128,12 +128,6 @@ class KeenableClient:
 
     async def fetch(self, url: str, *, max_chars: int = 0) -> dict:
         """Read a page as Markdown. Returns a dict with url, title and content."""
-        if not self.api_key:
-            # Keyless fetch has no POST form; only GET /v1/fetch/public exists.
-            params: dict = {"url": url}
-            if max_chars > 0:
-                params["max_chars"] = max_chars
-            return await self._request("/v1/fetch", "page fetch", params=params)
         payload: dict = {"urls": [url]}
         if max_chars > 0:
             payload["content"] = {"max_chars": max_chars}
