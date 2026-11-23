@@ -42,7 +42,8 @@ class KeenableClient:
         path: str,
         action: str,
         *,
-        payload: dict,
+        payload: dict | None = None,
+        params: dict | None = None,
     ) -> dict:
         headers = {"X-Keenable-Title": APP_TITLE}
         url = f"{self.base_url}{path}"
@@ -56,7 +57,8 @@ class KeenableClient:
         try:
             # trust_env picks up HTTP(S)_PROXY, which many AstrBot hosts rely on.
             async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
-                async with session.post(url, json=payload, headers=headers) as response:
+                method = "POST" if payload is not None else "GET"
+                async with session.request(method, url, json=payload, params=params, headers=headers) as response:
                     if response.status == 200:
                         return await response.json(content_type=None)
                     body = await response.text()
@@ -126,6 +128,12 @@ class KeenableClient:
 
     async def fetch(self, url: str, *, max_chars: int = 0) -> dict:
         """Read a page as Markdown. Returns a dict with url, title and content."""
+        if not self.api_key:
+            # Keyless fetch has no POST form; only GET /v1/fetch/public exists.
+            params: dict = {"url": url}
+            if max_chars > 0:
+                params["max_chars"] = max_chars
+            return await self._request("/v1/fetch", "page fetch", params=params)
         payload: dict = {"urls": [url]}
         if max_chars > 0:
             payload["content"] = {"max_chars": max_chars}
@@ -137,9 +145,8 @@ class KeenableClient:
         error = page.get("error")
         if isinstance(error, dict):
             status = error.get("status")
-            raise KeenableError(
-                self._error_message("page fetch", status if isinstance(status, int) else 500, json.dumps(error))
-            )
+            detail = " ".join(str(error.get("message") or error).split())[:300]
+            raise KeenableError(f"Keenable page fetch failed for the page (status {status}): {detail}")
         return page
 
 
