@@ -57,6 +57,14 @@ async def test_keyless_search_uses_public_endpoint_and_title(server):
     assert req["json"] == {"query": "q", "max_results": 10, "snippet_max_length": 500}
 
 
+async def test_search_sends_trimmed_objective_only_when_set(server):
+    client = KeenableClient(base_url=server.base_url)
+    await client.search("q", objective="  Find the 2026 pricing.  ")
+    await client.search("q", objective="   ")
+    assert server.requests[0]["json"]["objective"] == "Find the 2026 pricing."
+    assert "objective" not in server.requests[1]["json"]
+
+
 async def test_keyed_search_uses_key_and_private_endpoint(server):
     await KeenableClient(" keen_test ", base_url=server.base_url).search("q")
     req = server.requests[0]
@@ -81,6 +89,17 @@ async def test_search_rejects_malformed_date_without_calling_api(server):
     with pytest.raises(KeenableError, match="YYYY-MM-DD"):
         await KeenableClient(base_url=server.base_url).search("q", published_after="last week")
     assert server.requests == []
+
+
+async def test_search_rejects_overlong_objective_without_calling_api(server):
+    with pytest.raises(KeenableError, match="1000"):
+        await KeenableClient(base_url=server.base_url).search("q", objective="x" * 1001)
+    assert server.requests == []
+
+
+async def test_search_objective_at_limit_is_sent(server):
+    await KeenableClient(base_url=server.base_url).search("q", objective=" " + "x" * 1000 + " ")
+    assert len(server.requests[0]["json"]["objective"]) == 1000
 
 
 async def test_search_maps_snippet_collapses_whitespace_and_slices(server):

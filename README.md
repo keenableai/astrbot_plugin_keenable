@@ -14,7 +14,7 @@
 
 | 名称 | 类型 | 说明 |
 |---|---|---|
-| `keenable_web_search` | LLM Tool | 搜索网页，返回标题、链接和页面正文摘录，多数问题凭摘录即可回答。支持 `site`（限定域名）和 `published_after`（只看某日期之后发布的页面，适合新闻）。 |
+| `keenable_web_search` | LLM Tool | 搜索网页，返回标题、链接和页面正文摘录，多数问题凭摘录即可回答。支持 `site`（限定域名）、`published_after`（只看某日期之后发布的页面，适合新闻）和 `objective`（说明搜索目的：查询没有写出的内容和之前搜索的发现，仅用于多步骤或有歧义的问题，最多 1000 字符；排序会参考它）。 |
 | `keenable_fetch_page` | LLM Tool | 读取指定 URL，返回 Markdown 格式的正文。可在设置中关闭。 |
 | `/keenable <关键词>` | 指令 | 直接在聊天中搜索，返回前 5 条结果。 |
 
@@ -55,7 +55,7 @@ Maintained by [Keenable](https://keenable.ai), the company behind the search API
 
 | Name | Kind | What it does |
 |---|---|---|
-| `keenable_web_search` | LLM tool | Searches the web and returns titles, URLs and an excerpt of each page's text, enough to answer most questions without a second call. Supports `site` (one domain) and `published_after` (pages published on or after a date, for news). |
+| `keenable_web_search` | LLM tool | Searches the web and returns titles, URLs and an excerpt of each page's text, enough to answer most questions without a second call. Supports `site` (one domain), `published_after` (pages published on or after a date, for news) and `objective` (what the search is for: what the query leaves out and what earlier searches found, for multi-step or ambiguous questions; max 1,000 characters; the ranker uses it with the query). |
 | `keenable_fetch_page` | LLM tool | Reads a URL and returns its main content as Markdown. Can be turned off in the settings. |
 | `/keenable <query>` | Command | Searches from the chat and replies with the top 5 results. |
 

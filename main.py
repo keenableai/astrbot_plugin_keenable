@@ -61,7 +61,9 @@ class KeenablePlugin(Star):
         if not str(self._cfg("api_key") or "").strip():
             logger.info(f"[{PLUGIN_NAME}] no API key set, using the keyless tier")
 
-    async def _search(self, query: str, max_results: int = 0, site: str = "", published_after: str = "") -> str:
+    async def _search(
+        self, query: str, max_results: int = 0, site: str = "", published_after: str = "", objective: str = ""
+    ) -> str:
         if max_results <= 0:
             max_results = self._int_cfg("max_results", 1, 50)
         results = await self._client().search(
@@ -69,6 +71,7 @@ class KeenablePlugin(Star):
             max_results=max_results,
             site=site,
             published_after=published_after,
+            objective=objective,
             snippet_max_length=self._int_cfg("snippet_max_length", 100, 4000),
         )
         if not results:
@@ -112,6 +115,7 @@ class KeenablePlugin(Star):
         max_results: int = 0,
         site: str = "",
         published_after: str = "",
+        objective: str = "",
     ) -> str:
         """Search the web with Keenable.
         Returns ranked pages, each with its URL and an excerpt of the page text, so most
@@ -124,6 +128,12 @@ class KeenablePlugin(Star):
             site(string): Optional. Restrict results to one domain, for example "github.com".
             published_after(string): Optional. Only pages published on or after this date,
                 YYYY-MM-DD. Use it for recent news.
+            objective(string): Optional. Use for multi-step or ambiguous searches; omit for
+                simple lookups. In one to three plain sentences, say what the
+                search is for, what the query leaves out (who, where, when,
+                which sources count) and what earlier searches found. Don't
+                restate the question or include personal or confidential
+                details. At most 1,000 characters.
         """
         del event
         query = str(query or "").strip()
@@ -134,7 +144,7 @@ class KeenablePlugin(Star):
         except (TypeError, ValueError):
             count = 0
         try:
-            return await self._search(query, count, str(site or ""), str(published_after or ""))
+            return await self._search(query, count, str(site or ""), str(published_after or ""), str(objective or ""))
         except KeenableError as exc:
             return f"Error: {exc}"
         except Exception as exc:
